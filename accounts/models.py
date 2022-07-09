@@ -6,6 +6,7 @@ from django.conf import settings
 
 
 # Create your models here.
+from django.shortcuts import resolve_url
 from django.template.loader import render_to_string
 
 
@@ -22,6 +23,16 @@ class User(AbstractUser):
     avatar = models.ImageField(blank=True, upload_to='accounts/profile/%Y/%m/%d',
                                help_text="48 px * 48 px 크기의 jpg/png 를 업로드 해주세요.")
 
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        else:
+            return resolve_url("pydenticon_image", self.username)
 
     def send_welcome_email(self):
         pass
