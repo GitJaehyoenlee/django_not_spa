@@ -1,10 +1,26 @@
 {% load bootstrap4 %}
-<form action="" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    {% buttons %}
-    <button type="submit" class="btn btn-primary">
-      {{ submit_label|default:"Submit" }}
-    </button>
-    {% endbuttons %}
-</form>
+
+<div class="card">
+    {% if form_title %}
+      <div class="card-header">
+        {{ form_title }}
+      </div>
+    {% endif %}
+    <div class="card-body">
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if form %}
+                {% bootstrap_form form %}
+                {% buttons %}
+                    <button type="submit" class="btn btn-primary">
+                      {{ submit_label|default:"Submit" }}
+                    </button>
+                {% endbuttons %}
+            {% else %}
+                <div class="alert alert-danger">
+                    form 을 등록하세요. (원래라면 500 에러 )
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>

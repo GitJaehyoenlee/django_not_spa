@@ -45,8 +45,10 @@ INSTALLED_APPS = [
     # 3rd Apps
     'bootstrap4',
     'debug_toolbar',
+    'django_pydenticon',
     # User Apps
     'accounts',
+    'instagram',
 ]
 
 MIDDLEWARE = [
@@ -157,4 +159,11 @@ EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-WELCOM_EMAIL_SENDER = "me@akscompany.kr"
+WELCOME_EMAIL_SENDER = "me@akscompany.kr"
+
+# pydenticon Error
+# -> Python 3.10 Does not use Callable Function
+
+import collections
+if not hasattr(collections, 'Callable'):
+    collections.Callable = collections.abc.Callable
