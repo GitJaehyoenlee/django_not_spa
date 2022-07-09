@@ -4,9 +4,15 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
-                Instagram
-                <hr />
                 <a href="{% url "instagram:post_new" %}" class="btn btn-primary">새 포스팅 작성</a>
+            </div>
+            <div class="row">
+                <div class="col-sm-8 bg-sucess">
+                    TimeLine
+                </div>
+                <div class="col-sm-4">
+                    {% include "instagram/timeline_sidebar.html" %}
+                </div>
             </div>
         </div>
     </div>

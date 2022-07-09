@@ -6,6 +6,10 @@ from django.contrib import messages
 from instagram.forms import PostForm
 from .models import Tag, Post
 
+@login_required
+def index(request):
+    return render(request, "instagram/index.html", {
+    })
 
 @login_required
 def post_new(request):
