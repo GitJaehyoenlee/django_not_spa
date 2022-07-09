@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'bootstrap4',
     'debug_toolbar',
     'django_pydenticon',
+    # Crop APP : https://github.com/SmileyChris/easy-thumbnails
+    'easy_thumbnails',
     # User Apps
     'accounts',
     'instagram',

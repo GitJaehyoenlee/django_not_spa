@@ -3,3 +3,4 @@ django
 django-bootstrap4
 Pillow
 django-pydenticon
+easy-thumbnails
