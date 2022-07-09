@@ -18,6 +18,8 @@ class SignupForm(UserCreationForm):
         fields = ['username', 'email', 'first_name', 'last_name']
 
 
+    # Todo : clean_username 으로, 유저 이름이 사용하는 url 과 겹치지 않도록 조정할 것 .
+
     # 이메일 중복 제거
     def clean_email(self):
         email = self.cleaned_data.get('email')
