@@ -11,14 +11,20 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+# user
+# -> Post.objects.filter(author=user)
+# -> user.post_set.all()
 
 class Post(BaseModel):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='my_post_set',
+                               on_delete=models.CASCADE)
     photo = models.ImageField(upload_to="instagram/post/%Y/%m/%d")
     caption = models.CharField(max_length=500)
     tag_set = models.ManyToManyField('Tag', blank=True)
     # 위도 경도
     location = models.CharField(max_length=100)
+    like_user_set = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True,
+                                           related_name='like_post_set')
 
     def __str__(self):
         return self.caption
@@ -34,6 +40,20 @@ class Post(BaseModel):
     def get_absolute_url(self):
         return reverse("instagram:post_detail", args=[self.pk])
 
+    def is_like_user(self, user):
+        return self.like_user_set.filter(pk=user.pk).exists()
+
+    class Meta:
+        ordering = ['-id']
+
+
+class Comment(BaseModel):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    message = models.TextField()
+
+    class Meta:
+        ordering = ['-id']
 
 # https://django-taggit.readthedocs.io/en/latest/
 # 나중에 구현할떄는 위의 라이브러리를 활용하자.
@@ -42,3 +62,8 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+# 관계에서 추가적인 내용을 넣고 싶다면, 이방식 -> 아니라면 하지말것
+# class LikeUser(models.Model):
+#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

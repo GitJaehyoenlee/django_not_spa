@@ -1,3 +1,5 @@
+{% load instagram_tags humanize%}
+{% load bootstrap4 %}
 <div class="card">
     <div class="card-header">
         <img src="{{ post.author.avatar_url }}" style="height: 32px;"/>
@@ -7,12 +9,69 @@
     </div>
     <div class="card-body">
         <img src="{{ post.photo.url }}" style="width: 100%;" />
-</div>
-    <div class="card-footer">
-        {% for tag in post.tag_set.all %}
-            <span class="badge badge-primary">
-                #{{ tag.name }}
-            </span>
-        {% endfor %}
+        <div>
+            {% if post|is_like_user:user %}
+                <a href="{% url "instagram:post_unlike" post.pk %}" style="color: inherit;">
+                UL
+                </a>
+            {% else %}
+                <a href="{% url "instagram:post_like" post.pk %}" style="color: inherit;">
+                    L
+                </a>
+            {% endif %}
+    {#        현재 부트스트랩이 잘 적용되지 않는다.#}
+        </div>
+        <div id="post-{{ post.pk }}-comment-list" class="comment-list mt-3">
+            {% for comment in post.comment_set.all %}
+                {% include "instagram/_comment.html" %}
+            {% endfor %}
+        </div>
+            <div>
+            {% for tag in post.tag_set.all %}
+                <span class="badge badge-primary">
+                    #{{ tag.name }}
+                </span>
+            {% endfor %}
+        </div>
+        <div>
+            <a href="{{ post.get_absolute_url }}" style="" class="text-muted">
+                <small>
+                    {{ post.created_at|naturaltime }}
+                </small>
+            </a>
+        </div>
     </div>
+    <div class="card-footer">
+        <form id="post-{{ post.pk }}-comment-form" action="{% url "instagram:comment_new" post.pk%}" method="POST" >
+            {% csrf_token %}
+            {% bootstrap_form comment_form %}
+            <input type="submit" value="덧글쓰기" class="btn btn-primary" />
+        </form>
+    </div>
+    <div id="server-response-{{ post.pk }}"></div>
+
+    <script>
+        jQuery(function() {
+            var form_id = "post-{{ post.pk }}-comment-form";
+            $("#" + form_id).submit(function(e) {
+                e.preventDefault();
+                var options ={
+                    target: '#server-response-{{ post.pk }}',
+                    success: function(responseText, statusText, xhr, $form) {
+                        console.group("ajaxSubmit response");
+                        console.log(responseText);
+                        console.log(statusText);
+                        console.log(xhr);
+                        console.log($form);
+                        console.groupEnd();
+                        $("#post-7-comment-list").prepend("<div>test</div>");
+                    }
+                }
+                $(this).ajaxSubmit(options);
+
+                console.log("submit!!!")
+            })
+            console.log("Document Ready.")
+        });
+    </script>
 </div>

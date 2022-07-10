@@ -8,7 +8,7 @@ from django.db.models import Q
 # Create your views here.
 from django.utils import timezone
 
-from instagram.forms import PostForm
+from instagram.forms import PostForm, CommentForm
 from .models import Tag, Post
 
 @login_required
@@ -27,9 +27,12 @@ def index(request):
     suggested_user_list = get_user_model().objects.all()\
             .exclude(pk=request.user.pk)\
             .exclude(pk__in=request.user.following_set.all())[:3]
+
+    comment_form = CommentForm()
     return render(request, "instagram/index.html", {
         "suggested_user_list": suggested_user_list,
         "post_list": post_list,
+        "comment_form": comment_form,
     })
 
 @login_required
@@ -51,9 +54,51 @@ def post_new(request):
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
+    comment_form = CommentForm()
     return render(request, "instagram/post_detail.html", {
         "post": post,
+        "comment_form": comment_form,
     })
+
+@login_required
+def post_like(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.like_user_set.add(request.user)
+    print("t")
+    messages.success(request, f"포스팅 #{post.pk}를 좋아합니다.")
+    redirect_url = request.META.get("HTTP_REFERER", "root")
+    return redirect(redirect_url)
+
+@login_required
+def post_unlike(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.like_user_set.remove(request.user)
+    messages.success(request, f"포스팅 #{post.pk}를 좋아요를 취소합니다.")
+    redirect_url = request.META.get("HTTP_REFERER", "root")
+    return redirect(redirect_url)
+
+@login_required
+def comment_new(request, post_pk):
+    post = get_object_or_404(Post, pk=post_pk)
+    if request.method == 'POST':
+        form =  CommentForm(request.POST, request.FILES)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            # is_ajax : ajax 여부를 판단하는 방식 : 현재는 구분자를 구별하지 못해 제거됨
+            if request.is_ajax():
+                return render(request, "instagram/_comment.html",{
+                    'comment': comment
+                })
+            return redirect(comment.post)
+    else:
+        form = CommentForm()
+    return render(request, "instagram/comment_form.html",{
+        "form" : form,
+    })
+
 
 def user_page(request, username):
     page_user = get_object_or_404(get_user_model(), username=username, is_active=True)
